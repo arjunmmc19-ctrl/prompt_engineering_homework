@@ -1,0 +1,302 @@
+Outpatient Patient Scheduling & Care System
+Product and Functional Requirements
+
+Owner: ABC Health Care Company
+Document type: Product Requirements Document (PRD) with Functional Requirements
+Version: 1.0
+Date: December 20, 2025
+
+This document defines the product scope and functional requirements for ABC Health Care Company's
+outpatient patient scheduling and care workflow system. It is designed to be implementation-ready and
+compatible with integration to an existing EHR/EMR.
+
+Intended audience: Product, Engineering, Clinic Operations, Clinical Leadership, IT/Security, Compliance
+
+1. Product Overview
+
+System name: Outpatient Patient Scheduling & Care System (OSCS)
+Owner: ABC Health Care Company
+
+Problem statement
+Outpatient clinics often rely on fragmented scheduling tools and manual care coordination, leading to
+no-shows, inefficient intake, inconsistent follow-up, and limited real-time visibility into capacity and patient
+flow.
+
+Goals (measurable)
+- No-show rate: Reduce by 20-40% using confirmations, reminders, waitlists, and frictionless rescheduling.
+- Scheduling effort: Reduce time to book an appointment by ~30% via eligibility rules and guided workflows.
+- Access to care: Improve time-to-next-available appointment by 15-25% through capacity visibility and waitlist fill.
+- Follow-through: Increase completion of follow-up tasks (labs, referrals, care plan items) by ~20%.
+- Governance: Ensure audit-ready logs and role-based access for PHI handling.
+
+Non-goals for MVP
+- Inpatient bed management or hospital-wide operations.
+- Full revenue cycle management (billing may integrate later).
+- Replacing the EHR/EMR; OSCS should integrate with existing clinical systems.
+
+2. Users and Roles
+
+Primary personas
+- Patient
+- Front desk / Scheduling staff
+- Clinician (MD/DO/NP/PA)
+- Nurse / Care coordinator
+- Clinic manager
+- System admin / IT
+- Billing staff (optional for MVP)
+
+Access model
+The system must implement role-based access control (RBAC) with least-privilege permissions. All
+PHI-relevant actions must be audit logged for ABC Health Care Company governance and compliance.
+
+3. Core Workflows
+
+Scheduling (happy path)
+- Patient requests an appointment (portal or call center).
+- System finds eligible slots based on provider, location, visit type, and clinic rules.
+- Appointment is booked and confirmation is sent.
+- Patient completes pre-visit intake forms and consents.
+- Day-of check-in (remote or front desk).
+- Visit occurs; outcomes are documented.
+- Follow-up tasks and care plan items are created and assigned.
+- Post-visit communication and next appointment (if needed).
+
+Exceptions
+- No-show or late cancellation handling.
+- Provider schedule changes requiring reassignment or rescheduling.
+- Overbooking policies based on clinic rules.
+- Waitlist slot offers when cancellations occur.
+- Multi-appointment sequences (e.g., lab + consult).
+
+4. Feature Scope (Modules)
+
+Owned by ABC Health Care Company
+- Patient Access and Portal
+- Scheduling and Calendar Management
+- Intake and Check-in
+- Care Plan and Tasking (Care Management)
+- Communication (SMS/Email/Portal Messaging)
+- Clinic Operations (Queue, Rooming, Status Board)
+- Reporting and Analytics
+- Administration and Configuration
+- Integrations (EHR/EMR, Messaging, Telehealth, Labs/Referrals)
+
+5. Functional Requirements
+
+A. Patient Portal and Access
+
+FR-001 Patient registration and identity
+- Patients can create accounts using email and/or phone.
+- Support OTP verification; optional identity checks can be enabled by policy.
+- Login attempts are rate-limited; authentication events are audited.
+
+FR-002 Patient profile management
+- Patients can manage demographics, contact info, preferred language, and communication preferences.
+- Patients can add emergency contact information.
+
+FR-003 Appointment request and self-scheduling
+- Support instant booking for eligible visit types and a request-and-approve mode when required.
+- Patients can search by visit type, location, provider preference, and time window.
+- Only eligible time slots are displayed; double-booking is prevented unless allowed by policy.
+
+FR-004 Reschedule and cancel
+- Patients can reschedule/cancel within configured policy windows.
+- Cancellation reason is captured (structured list plus optional free text).
+- When a slot opens, the waitlist workflow is triggered (if enabled).
+
+FR-005 Forms and documents
+- Patients can complete intake forms, questionnaires, and consents digitally.
+- Support e-signature for required consents.
+- Signed documents are immutable and versioned; completion status is visible to staff.
+
+B. Scheduling and Calendar Management
+
+FR-101 Provider calendars
+- Define working hours, schedule templates, breaks, and buffers.
+- Template changes support effective dates to avoid breaking published schedules.
+
+FR-102 Multi-location scheduling
+- Support multiple clinic locations with distinct hours and resources.
+- Support cross-location search for availability.
+
+FR-103 Visit types and duration rules
+- Visit types define default duration, required resources, prerequisites, and allowed booking channels.
+- Visit types can be configured as staff-only or patient self-scheduling.
+
+FR-104 Resource scheduling
+- Appointments can reserve rooms and equipment where required.
+- Conflicts are detected across provider, room, equipment, and staff resources.
+
+FR-105 Waitlist and fill logic
+- Patients can opt into a waitlist with preferred time windows and acceptable providers/locations.
+- When a slot opens, offers are sent in priority order and expire after a configurable time.
+- If not accepted, the slot is released back to availability.
+
+FR-106 Overbooking rules
+- Overbooking policies are configurable by provider, visit type, and time-of-day.
+- When overbooking is used, staff must enter a justification; overbooked visits are visually flagged.
+- All overbooking actions are audited.
+
+FR-107 Scheduling constraints and eligibility
+- Enforce constraints such as new vs established patient rules, age limits, insurance acceptance, and referral requirements.
+- If constraints fail, the system blocks booking or routes to a request-and-review workflow.
+
+FR-108 Appointment lifecycle states
+- Appointment states include Requested, Scheduled, Confirmed, Checked-in, In-room, Completed, Cancelled, No-show.
+- State transitions are validated and audited.
+
+C. Intake, Check-in, and Clinic Flow
+
+FR-201 Pre-visit intake
+- Automated reminders are sent for incomplete intake items.
+- Staff can view missing items per patient/appointment.
+
+FR-202 Check-in modes
+- Support front desk check-in and mobile self check-in (policy-gated by time and optional geo-fence).
+- Optional capture of insurance card and ID images.
+- Co-pay collection can be integrated (optional).
+
+FR-203 Clinic status board
+- Real-time board shows patient flow: arrived, waiting, roomed, clinician assigned, completed.
+- Filters by provider, location, and visit type.
+
+D. Care Management (Post-visit Follow-through)
+
+FR-301 Care plan creation
+- Clinicians and care team members can create care plans tied to the encounter.
+- Care plans include goals, interventions, tasks, and due dates.
+
+FR-302 Task management
+- Tasks can be assigned to patients or staff; tasks include owner, due date, priority, and status.
+- Overdue tasks escalate based on policy; reminders are sent as configured.
+
+FR-303 Follow-up scheduling from care plan
+- Generate follow-up appointment suggestions based on care plan tasks.
+- Provide a 'schedule next' workflow from visit documentation.
+
+FR-304 Care team messaging
+- Internal messaging supports @mentions and templates (optional in MVP).
+- Patient messaging is handled separately via the communication module.
+
+E. Communication and Notifications
+
+FR-401 Notification engine
+- Support SMS and email notifications (MVP); optional IVR/push in later phases.
+- Templates include confirmation, reminders (configurable timing), intake pending, cancellation/reschedule, waitlist offer, and post-visit instructions.
+- Opt-in/opt-out preferences are stored and enforced; delivery status is tracked.
+
+FR-402 Two-way messaging
+- Patients can reply to SMS or message in the portal.
+- Keyword routing supports automated actions (e.g., CANCEL) and staff inbox routing.
+- Messages containing PHI are stored securely and audited.
+
+F. Reporting and Analytics
+
+FR-501 Operational dashboards
+- No-show rate, late cancel rate, utilization, lead time, fill rate, and waitlist conversion.
+- Staff productivity metrics (appointments booked, requests handled) where applicable.
+
+FR-502 Clinical follow-through
+- Task completion rates, follow-up adherence, referral completion.
+- Clinic and provider-level views with role restrictions.
+
+FR-503 Export and BI
+- CSV export with role-based restrictions and audit logging.
+- Read-only API access for BI tooling (optional).
+
+G. Administration and Configuration
+
+FR-601 Clinic setup
+- Manage locations, hours, holidays, rooms, and equipment.
+- Manage providers, roles, specialties, visit types, intake requirements, and policy rules.
+
+FR-602 Templates
+- Appointment templates by provider/location/visit type.
+- Form templates with versioning and effective dates.
+
+FR-603 Audit logs
+- Track create/update/delete for appointments, patient demographics, care plans/tasks, and permissions.
+- Audit entries include actor, timestamp, and before/after values; justification is captured when required.
+
+H. Integrations
+
+FR-701 EHR/EMR integration
+- Support HL7 v2 and/or FHIR for patient and appointment data exchange.
+- Define source-of-truth and conflict resolution strategy.
+
+FR-702 Messaging provider integration
+- Integrate with an SMS gateway and email provider; store message metadata and delivery receipts.
+
+FR-703 Telehealth
+- For tele-visit types, generate and attach a meeting link at booking (optional).
+
+FR-704 Insurance eligibility
+- Eligibility checks prior to confirmation (optional; depends on payer integration).
+
+6. Data Requirements (High-level Entities)
+
+All data is managed under ABC Health Care Company governance and access policies. Key entities include:
+- Patient
+- Provider (Practitioner)
+- Location
+- Resource (Room/Equipment)
+- Appointment
+- Visit Type
+- Schedule Template / Availability Block
+- Encounter (Visit Summary)
+- Intake Form + Response
+- Consent Document + Signature
+- Care Plan
+- Task
+- Message/Notification
+- Audit Log
+- User + Role + Permission
+
+7. Non-functional Requirements
+
+Security and privacy
+- Role-based access control (RBAC) with least privilege and separation of duties where appropriate.
+- Encryption in transit (TLS 1.2+) and at rest (industry-standard encryption).
+- Immutable audit logs for PHI-relevant actions.
+- Optional MFA for staff; configurable session timeouts.
+- Rate limiting and basic anomaly detection for authentication and portal usage.
+
+Reliability and availability
+- Target availability: 99.9% (configurable by ABC Health Care Company).
+- Automated encrypted backups with defined RPO/RTO targets.
+- Integration failures handled via retry queues and operational alerts.
+
+Performance
+- Availability search returns results in under 2 seconds for typical clinic data volumes.
+- Clinic status board updates within 5 seconds under normal load.
+
+Compliance and auditability
+- Audit logs retained per ABC Health Care Company policy; exports restricted by role.
+- Support patient access requests and record export processes per organizational requirements.
+
+8. MVP Recommendation
+
+MVP scope for ABC Health Care Company
+- Staff scheduling with provider calendars, visit types, booking, and reschedule/cancel.
+- Patient portal self-scheduling for limited visit types plus confirmations and reminders.
+- Basic waitlist capability.
+- Intake forms and check-in workflows.
+- Basic care tasks and follow-up tracking.
+- Operational dashboards (no-show and utilization) and audit logs.
+- Baseline EHR integration for Patient and Appointment synchronization.
+
+Phase 2 (post-MVP)
+- Advanced resource constraints and capacity optimization.
+- Two-way messaging with smart routing and ticketing integration.
+- Insurance eligibility checks and payment/co-pay collection integrations.
+- Telehealth integration expansion and deeper clinical documentation workflows.
+- Advanced analytics and forecasting.
+
+9. Definition of Done
+
+- All appointment state transitions are validated and audit logged.
+- Role permissions verified with a test matrix covering all personas.
+- Security baseline tests (SAST and basic penetration testing) completed.
+- Load testing validates scheduling search and status board performance targets.
+- Integration failure handling validated (queue, retry, alert).
+- UAT scripts for top workflows executed and signed off by ABC Health Care Company stakeholders.
